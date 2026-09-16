@@ -149,6 +149,14 @@ button:focus-visible{outline:2px solid var(--thread);outline-offset:4px;}
 #bar{position:fixed;left:0;top:0;height:2px;background:var(--thread);width:0;z-index:99;}
 .foot{padding:5vh 7vw 9vh;color:rgba(23,19,16,.42);font-size:10px;letter-spacing:.18em;text-transform:uppercase;}
 canvas{display:none;}
+.pmodal{position:fixed;inset:0;z-index:150;background:rgba(26,21,15,.94);display:none;overflow:auto;padding:6vh 6vw;}
+.pmodal.on{display:block;}
+.pin2{max-width:420px;margin:0 auto;text-align:center;}
+.pin2 img{width:100%;display:block;box-shadow:0 18px 50px rgba(0,0,0,.55);}
+a.f{display:inline-block;margin-top:22px;background:var(--sun);color:var(--ink);text-decoration:none;
+  font-family:var(--b);font-weight:600;font-size:11px;letter-spacing:.22em;padding:15px 30px;text-transform:uppercase;}
+a.f:hover{background:var(--thread);color:var(--sun);}
+.psm{color:rgba(233,220,187,.6);font-size:12px;margin-top:14px;}
 @media(max-height:660px){.xl{font-size:clamp(40px,7vw,90px);}.lg{font-size:clamp(24px,3.4vw,42px);}.md{font-size:clamp(18px,2.2vw,28px);}#what p{font-size:clamp(17px,1.9vw,23px);}#what p.b{font-size:clamp(23px,3vw,38px);}}
 @media(max-width:700px){.row{grid-template-columns:1fr;gap:4px;}#def{height:230vh;}#mark img{width:62vw;}.bleed{height:auto;min-height:0;}.bleed img{position:relative;inset:auto;top:0;width:100%;height:auto;transform:none!important;display:block;}.bleed::after{display:none;}.bleed .cap{position:static;padding:6vh 7vw 9vh;max-width:22ch;color:var(--ink);text-shadow:none;}.bleed .cap .gl{color:var(--faint)!important;}.bleed{padding:0;}#accused{min-height:105vh;}#silence{height:auto;padding:16vh 7vw;}.tradelink{padding:10px 12px;font-size:9px;letter-spacing:.16em;}#what{padding-top:12vh;padding-bottom:12vh;}#hero{padding-top:14vh;}#letter{max-width:100%;}.bleed::after{background:linear-gradient(180deg,rgba(26,21,15,.14) 0%,rgba(26,21,15,0) 30%,rgba(26,21,15,.82) 100%);}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}.track{transform:none!important}}
@@ -303,6 +311,9 @@ canvas{display:none;}
     <p style="font-size:15px;margin-top:10px;">Key art, stills, trailer and screener available on request. Platoon One Films, Mumbai.</p>
   </div>
 </div>
+<div class="pmodal" id="pm"><button class="close" id="pcb" aria-label="Close">&times;</button>
+  <div class="pin2"><img id="pimg" alt="Your bayaan"><a class="f" id="pdl" download="my-bayaan.png">Save image</a>
+  <p class="psm">On a phone you can also press and hold the image to save it.</p></div></div>
 <canvas id="cv" width="1080" height="1350"></canvas>
 
 <script>
@@ -408,28 +419,38 @@ document.getElementById('btn').addEventListener('click',function(){
 
 document.getElementById('dl2').addEventListener('click',function(){
   if(!last)return;
-  var c=document.getElementById('cv'),x=c.getContext('2d');
-  var g=x.createLinearGradient(0,0,1080,1350);g.addColorStop(0,'#CFBB92');g.addColorStop(1,'#B39B6C');
-  x.fillStyle=g;x.fillRect(0,0,1080,1350);
-  var M=92,size=62,lh=76,maxW=1080-M*2;
-  x.font='600 20px Archivo, sans-serif';x.fillStyle='#6E6047';x.fillText('RECORD YOUR BAYAAN',M,140);
-  x.font=size+'px Anton, Impact, sans-serif';
-  var ls=[],cur=[],cw=0;
-  last.words.forEach(function(wd,i){var t=wd.toUpperCase()+' ',w2=x.measureText(t).width;
-    if(cw+w2>maxW&&cur.length){ls.push(cur);cur=[];cw=0;}
-    cur.push({t:t,w:w2,r:last.map[i]});cw+=w2;});
-  if(cur.length)ls.push(cur);
-  var y=300;
-  ls.forEach(function(ln){var cx=M;
-    ln.forEach(function(tk){
-      if(tk.r){x.fillStyle='#171310';x.fillRect(cx-4,y-size+12,tk.w-6,size);}
-      else{x.fillStyle='#171310';x.fillText(tk.t,cx,y);}
-      cx+=tk.w;});
-    y+=lh;});
-  x.font='600 18px Archivo, sans-serif';x.fillStyle='#6E6047';x.fillText('PARTIALLY RECORDED',M,1195);
-  x.font='70px Anton, Impact, sans-serif';x.fillStyle='#171310';x.fillText('BAYAAN',M,1278);
-  var a=document.createElement('a');a.download='my-bayaan.png';a.href=c.toDataURL('image/png');a.click();
+  var go=function(){
+    var c=document.getElementById('cv'),x=c.getContext('2d');
+    var g=x.createLinearGradient(0,0,1080,1350);g.addColorStop(0,'#CFBB92');g.addColorStop(1,'#B39B6C');
+    x.fillStyle=g;x.fillRect(0,0,1080,1350);
+    var M=92,size=62,lh=76,maxW=1080-M*2;
+    x.font='600 20px Archivo, sans-serif';x.fillStyle='#6E6047';x.fillText('RECORD YOUR BAYAAN',M,140);
+    x.font=size+'px Anton, Impact, sans-serif';
+    var ls=[],cur=[],cw=0;
+    last.words.forEach(function(wd,i){var t=wd.toUpperCase()+' ',w2=x.measureText(t).width;
+      if(cw+w2>maxW&&cur.length){ls.push(cur);cur=[];cw=0;}
+      cur.push({t:t,w:w2,r:last.map[i]});cw+=w2;});
+    if(cur.length)ls.push(cur);
+    var y=300;
+    ls.forEach(function(ln){var cx=M;
+      ln.forEach(function(tk){
+        if(tk.r){x.fillStyle='#171310';x.fillRect(cx-4,y-size+14,tk.w-6,size*0.8);}
+        else{x.fillStyle='#171310';x.fillText(tk.t,cx,y);}
+        cx+=tk.w;});
+      y+=lh;});
+    x.font='600 18px Archivo, sans-serif';x.fillStyle='#6E6047';x.fillText('PARTIALLY RECORDED',M,1195);
+    x.font='70px Anton, Impact, sans-serif';x.fillStyle='#171310';x.fillText('BAYAAN',M,1278);
+    var show=function(url){
+      document.getElementById('pimg').src=url;
+      document.getElementById('pdl').href=url;
+      document.getElementById('pm').classList.add('on');
+    };
+    if(c.toBlob){c.toBlob(function(b){show(b?URL.createObjectURL(b):c.toDataURL('image/png'));},'image/png');}
+    else{show(c.toDataURL('image/png'));}
+  };
+  if(document.fonts&&document.fonts.ready){document.fonts.ready.then(go).catch(go);}else{go();}
 });
+document.getElementById('pcb').onclick=function(){document.getElementById('pm').classList.remove('on');};
 
 var md=document.getElementById('modal');
 document.getElementById('tb').onclick=function(){md.classList.add('on');};
